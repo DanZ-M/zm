@@ -1,0 +1,2 @@
+# From the root of the zephyr repository
+west build -b nrf52840dk/nrf52840 samples/subsys/display/lvgl -- -DSHIELD=waveshare_epaper_gdeh0213b1
