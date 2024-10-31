@@ -33,8 +33,5 @@ manifest:
           - trusted-firmware-m
   self:
     # This works (only) when ZMK is loaded as module
-    west-commands: app/scripts/west-commands.yml      revision: 6cb4c283e76209d59c45fbcb218800cd19e9339d
-      path: modules/msgs/zmk-studio-messages
-      remote: zmkfirmware
-  self:
     west-commands: app/scripts/west-commands.yml
+    
