@@ -1,43 +1,30 @@
 /*
- * Copyright (c) 2021 The ZMK Contributors
+ * Copyright (c) 2020 The ZMK Contributors
  *
  * SPDX-License-Identifier: MIT
  */
 
-#include <drivers/behavior.h>
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include <zephyr/settings/settings.h>
+
 #include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(zmk, CONFIG_ZMK_LOG_LEVEL);
 
-LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
+#include <zmk/display.h>
 
-#include <zmk/events/mouse_button_state_changed.h>
-#include <zmk/hid.h>
-#include <zmk/endpoints.h>
-#include <zmk/mouse.h>
+int main(void) {
+    LOG_INF("Welcome to ZMK!\n");
 
-static void listener_mouse_button_pressed(const struct zmk_mouse_button_state_changed *ev) {
-    LOG_DBG("buttons: 0x%02X", ev->buttons);
-    zmk_hid_mouse_buttons_press(ev->buttons);
-    zmk_endpoints_send_mouse_report();
-}
+#if IS_ENABLED(CONFIG_SETTINGS)
+    settings_subsys_init();
+    settings_load();
+#endif
 
-static void listener_mouse_button_released(const struct zmk_mouse_button_state_changed *ev) {
-    LOG_DBG("buttons: 0x%02X", ev->buttons);
-    zmk_hid_mouse_buttons_release(ev->buttons);
-    zmk_endpoints_send_mouse_report();
-}
+#ifdef CONFIG_ZMK_DISPLAY
+    zmk_display_init();
+#endif /* CONFIG_ZMK_DISPLAY */
 
-int mouse_listener(const zmk_event_t *eh) {
-    const struct zmk_mouse_button_state_changed *mbt_ev = as_zmk_mouse_button_state_changed(eh);
-    if (mbt_ev) {
-        if (mbt_ev->state) {
-            listener_mouse_button_pressed(mbt_ev);
-        } else {
-            listener_mouse_button_released(mbt_ev);
-        }
-        return 0;
-    }
     return 0;
 }
-
-ZMK_LISTENER(mouse_listener, mouse_listener);
-ZMK_SUBSCRIPTION(mouse_listener, zmk_mouse_button_state_changed);
